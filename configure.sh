@@ -14,9 +14,20 @@ INSTALLFILE="$HOME/install.conf"
 source ./lib.sh
 source ./logs/progress
 
+HELP="
+$(basename $0) {OPTION}
+commands:
+   $(basename $0) -{command}
+    h | help
+    u | update
+    f | file
+
+    NOTE: (-) or (--) before commands is optional
+"
+
 case $1 in
     h | -h | help | --help)
-	HELP
+        print "$HELP"
 	;;
     
     f | -f | file | --file)
