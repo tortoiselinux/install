@@ -11,8 +11,8 @@ set -ex
 
 INSTALLFILE="$HOME/install.conf"
 
-source ./lib.sh
-source ./logs/progress
+source /etc/tortoise/tortoise_installer/lib.sh
+source /etc/tortoise/tortoise_installer/logs/progress
 
 HELP="
 $(basename $0) {OPTION}
