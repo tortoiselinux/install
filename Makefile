@@ -6,13 +6,14 @@ DIRS = files logs packages
 
 install:
 	@echo "Make dir: $(PREFIX)"
+	rm -rf $(PREFIX)
 	mkdir -p $(PREFIX)
 
 	@echo "Copying scripts..."
-	install -m 755 $(SCRIPTS) $(PREFIX)
+	install -m 755 -C $(SCRIPTS) $(PREFIX)
 
 	@echo "Copying Files..."
-	install -m 644 $(FILES) $(PREFIX)
+	install -m 644 -C $(FILES) $(PREFIX)
 
 	@echo "Copying directories..."
 	for dir in $(DIRS); do cp -r $$dir $(PREFIX)/; done
