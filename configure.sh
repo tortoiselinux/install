@@ -36,6 +36,8 @@ case $1 in
 
 u | -u | update | --update)
     echo "UPDATE INSTALLER"
+
+    [ -d /tmp/tortoise ] && rm -rf /tmp/tortoise
     
     mkdir -p /tmp/tortoise
     if ! git clone --depth=1 https://github.com/tortoiselinux/install.git /tmp/tortoise; then
@@ -43,8 +45,8 @@ u | -u | update | --update)
         exit 1
     fi
 
-    if ! cd /tmp/tortoise/install; then
-        echo "Erro: Falha ao entrar no diretório /tmp/tortoise/install." >&2
+    if ! cd /tmp/tortoise; then
+        echo "Erro: Falha ao entrar no diretório /tmp/tortoise." >&2
         exit 1
     fi
 

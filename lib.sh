@@ -9,7 +9,7 @@
 red='\e[31m'
 reset='\e[0m'
 
-source ./env
+source /etc/tortoise/tortoise_installer/env
 
 print(){
     local MSG="$1"
