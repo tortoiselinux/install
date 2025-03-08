@@ -9,7 +9,7 @@
 
 set -ex
 
-INSTALLFILE="$HOME/install.conf"
+INSTALLFILE="/home/turtle/install.conf"
 
 source /etc/tortoise/tortoise_installer/lib.sh
 source /etc/tortoise/tortoise_installer/logs/progress
