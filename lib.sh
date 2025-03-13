@@ -449,7 +449,7 @@ post_install(){
     printf "%s\n" "installation complete!"
 
     dialog --title "Installation Complete! Rebooting in:" --pause "" 0 0 10
-    if [[$? -eq 1]]; then
+    if [[ $? -eq 1 ]]; then
 	print "system will not reboot automatically"
     else
 	print "Rebooting System properly"
