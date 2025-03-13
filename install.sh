@@ -10,8 +10,10 @@ set -ex
 
 source /etc/tortoise/tortoise_installer/lib.sh
 source /etc/tortoise/tortoise_installer/logs/progress
+source /etc/tortoise/tortoise_installer/env
 
-[[ -v INSTALLFILE ]] || INSTALLFILE="/home/turtle/install.conf"
+[[ -v INSTALLFILE ]] || error \ 
+	"Cannot load INSTALLFILE (make sure that variable exists and have te right location to that file)"
 
 source "$INSTALLFILE"
 

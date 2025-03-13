@@ -56,6 +56,7 @@ case $1 in
 	;;
     f | -f | file | --file)
 	INSTALLFILE="$2"
+	write_env_var "INSTALLFILE" "$INSTALLFILE" "/etc/tortoise/tortoise_installer/env"
 	;;
 
     d | -d | dotfiles | --dotfiles)
