@@ -32,7 +32,7 @@ error() {
 
   printf "\e[31m[ERRO] %s (Código: %d)\e[0m\n" "$MSG" "$EXIT_CODE" >&2
   printf "[%s] [ERRO] %s (Código: %d)\n" "$(date +"%Y-%m-%d %H:%M:%S")" \
-	 "$msg" "$EXIT_CODE" | tee -a "$LOG_FILE" >&2
+	 "$MSG" "$EXIT_CODE" | tee -a "$LOG_FILE" >&2
 
   printf "Stack trace:\n" | tee -a "$LOG_FILE" >&2
   for i in $(seq 1 $((${#FUNCNAME[@]} - 1))); do
@@ -249,13 +249,16 @@ recursive_copy(){
 }
 
 copy_config_files(){
-    
     print "Copy skel to new system"
     mkdir -p /mnt/etc/skel ||  echo "failed to create skel"
+    mkdir -p /mnt/etc/skel/.local ||  echo "failed to create .local"
+    
     cp -vr $INSTALLER_DIR/files/.config /mnt/etc/skel/ || \
-	error "failed to copy .config to new root" 
+	error "failed to copy .config to new root"
+    cp -vr $INSTALLER_DIR/files/fonts /mnt/etc/skel/.local/share || \
+	error "failed to copy fonts to new root"
     cp -v $INSTALLER_DIR/files/.bashrc /mnt/etc/skel/ ||  \
-	error "failed to copy .bashrc to new root" 
+	error "failed to copy .bashrc to new root"
     cp -v $INSTALLER_DIR/files/.bash_aliases /mnt/etc/skel/ || \
 	error "failed to copy .bash_aliases to new root"
     
@@ -272,8 +275,6 @@ copy_config_files(){
 	print "Error: lightdm.service not found."
 	exit 1
     fi
-
-    #cat /mnt/usr/lib/systemd/system/lightdm.service 
 }
 
 gen_fstab(){
@@ -407,50 +408,57 @@ make_grub_config(){
     arch-chroot /mnt /bin/bash -c 'grub-mkconfig -o /boot/grub/grub.cfg'
 }
 
+update_fc_cache(){
+    arch-chroot /mnt /bin/bash -c 'fc-cache -fv'
+}
+
 post_install(){
     print "Enable Systemd Services"
     enable_service lightdm.service || error "Failed to enable lightdm.service"
     enable_service NetworkManager || error "Failed to enable NetworkManager"
 
-    printf  "%s\n" "set zoneinfo to localtime file"
+    print "Set zoneinfo to localtime file"
     set_timezone "$ZONEINFO" || error "Failed to set timezone"
 
     print "Update hardware Clock"
     update_hardware_clock || error "Failed to update hardware clock"
 
-    printf "%s\n" "creating locale.gen"
+    print "Creating locale.gen"
     generate_locale_gen "$ENCODING" || error "Failed to modify locale.gen"
     
-    printf "%s\n" "generate locale.conf"
+    print "Generate locale.conf"
     generate_locale_conf "$ENCODING" || error "Failed to write locale.conf" 
     
-    printf "%s\n" "setting up keyboard"
+    print "Setting up keyboard"
     write_vconsole "$KEYBOARD" || error "Failed to wrife vconsole.conf" 
 
-    printf "%s\n" "set hostname"
+    print "Set hostname"
     set_hostname "$USERHOSTNAME" || error "Failed to set hostname" 
 
-    printf "%s\n" "running mkinitcpio"
+    print "Update font Cache"
+    update_fc_cache || error "Failed to update font cache"
+    
+    print "Running mkinitcpio"
     do_mkinitcpio || error "Failed to run mkinitcpio"
 
-    printf "%s\n" "set root password"
+    print "Set root password"
     set_root_passwd "$ROOTPASSWD"|| error "Failed to set root password" 
 
-    printf "%s\n" "create user"
+    print "Create user"
     create_user "$USERNAME" || error "Failed to create user" 
 
-    printf "%s\n" "set user password"
+    print "Set user password"
     set_user_passwd "$USERNAME" "$USERPASSWD" || error "Failed to create user password" 
 
-    printf "%s\n" "installing bootloader"
+    print "Installing bootloader"
     install_x86_64_grub || error "Failed on grub installation"
     make_grub_config || error "Failed to write grub.cfg configuration file" 
 
-    printf "%s\n" "installation complete!"
+    print "Installation complete!"
 
     dialog --title "Installation Complete! Rebooting in:" --pause "" 0 0 10
     if [[ $? -eq 1 ]]; then
-	print "system will not reboot automatically"
+	print "System will not reboot automatically"
     else
 	print "Rebooting System properly"
 	reboot
