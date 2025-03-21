@@ -9,7 +9,7 @@
 red='\e[31m'
 reset='\e[0m'
 
-source /etc/tortoise/tortoise_installer/env
+source /etc/tortoise/egginstall.conf
 
 print(){
     local MSG="$1"
@@ -17,16 +17,16 @@ print(){
 }
 
 TODO(){
-	print "THIS FEATURE IS NOT IMPLEMENTED YET"
+    print "THIS FEATURE IS NOT IMPLEMENTED YET"
 }
 
 error() {
   local MSG="$1"
   local EXIT_CODE="${2:-1}"
-  local LOG_FILE="$INSTALLER_DIR/logs/track.log"
+  local LOG_FILE="$LOGDIR/track.log"
   
-  [[ -f "$INSTALLER_DIR/env" ]] && \
-      source "$INSTALLER_DIR/env"
+  [[ -f "/etc/tortoise/egginstall.conf" ]] && \
+      source "/etc/tortoise/egginstall.conf"
 
   mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -66,29 +66,23 @@ verify_and_source(){
 
 source_or_create(){
     local FILEPATH="$1"
-    [[ -f "$FILEPATH" ]] || touch "$FILEPATH"
+    [[ -f "$FILEPATH" ]] || echo "" >> "$FILEPATH"
     source "$FILEPATH"
 }
 
-# TODO: make this shit works and progress save
-# make this function dont duplicate progress key
 write_progress(){
     PROGRESSKEY="$1"
-    PROGRESSFILE="$INSTALLER_DIR/logs/progress"
-
-    print "$PROGRESSKEY" >> "$PROGRESSFILE"
-
-    if [[ $? -ne 0  ]]; then
-	 error "Failed to write log"
-	exit 1
-    fi
+    PROGRESSFILE="$CHACHEDIR/progress"
+    mkdir -m 0755 -p "$CACHEDIR"
+    print "$PROGRESSKEY" >> "$PROGRESSFILE" || error "Failed to write log"
 }
 
 write_env_var(){
     KEY="$1"
-    VALUE="$2"
-    FILE="$3"
-    echo "$KEY=\"$VALUE\"" >> "$FILE"
+    FILE="$2"
+    touch "$FILE"
+    sed -i "/^$(echo "$KEY" | cut -d= -f1)=/d" "$FILE"
+    printf "\n%s\n" "$KEY" >> "$FILE"
 }
 
 make_partitions(){
@@ -176,7 +170,7 @@ get_rootpasswd(){
 get_packages(){    
     INTERFACE=$(dialog --stdout --title "AMBIENTE GRÁFICO (DE/WM)" \
 		       --checklist 'Escolha um Window manager ou Desktop Enviroment' 0 0 0 \
-		       i3-wm 'light weight window manager' on \
+		       i3-wm 'light weight window manager' on 
 		       # KDE '' off \
 		       # gnome '' off \
 		       # lxqt '' off \
@@ -216,58 +210,37 @@ get_packages(){
 	     )
 }
 
-copy_file(){
-    # use: copy_file FILE DESTDIR
-    FILE="$1"
-    DESTDIR="$2"
-    print "Copy $FILE to $DESTDIR"
-    if [ -f "$FILE" ]; then
-	cp -v $FILE $DESTDIR ||  error "Failed to copy $FILE to $DESTDIR"
-	print "$FILE copied successfully."
-    else
-	print "Error: $FILE not found."
-	exit 1
-    fi
-}
-
-# this mf is not working, it's saying that .config does't exist
-# but when I do ´ls´ in that path it's show all of the files. this is so disgusting.
-# for that reason I need to write this in a real fucking language
-# or maybe I'm not smart enough to use shell
-recursive_copy(){
-    # use: copy_file FILE DESTDIR
-    FILE="$1"
-    DESTDIR="$2"
-    print "Copy $FILE to $DESTDIR"
-    if [ -f "$FILE" ]; then
-	cp -vr $FILE $DESTDIR ||  error "Failed to copy $FILE to $DESTDIR"
-	print "$FILE copied successfully."
-    else
-	print "Error: $FILE not found."
-	exit 1
-    fi
-}
-
 copy_config_files(){
     print "Copy skel to new system"
-    mkdir -p /mnt/etc/skel ||  echo "failed to create skel"
-    mkdir -p /mnt/etc/skel/.local ||  echo "failed to create .local"
+    mkdir -p /mnt/etc/skel ||  echo "Failed to create skel"
+    mkdir -p /mnt/usr/share/backgrounds || echo "Failed to create backgrounds dir"
     
-    cp -vr $INSTALLER_DIR/files/.config /mnt/etc/skel/ || \
-	error "failed to copy .config to new root"
-    cp -vr $INSTALLER_DIR/files/fonts /mnt/etc/skel/.local/share || \
-	error "failed to copy fonts to new root"
-    cp -v $INSTALLER_DIR/files/.bashrc /mnt/etc/skel/ ||  \
-	error "failed to copy .bashrc to new root"
-    cp -v $INSTALLER_DIR/files/.bash_aliases /mnt/etc/skel/ || \
-	error "failed to copy .bash_aliases to new root"
+    # FILES
+    cp -v $STATICDIR/files/.bashrc /mnt/etc/skel/ ||  \
+	error "Failed to copy .bashrc to new root"
+    cp -v $STATICDIR/files/.zshrc /mnt/etc/skel/ ||  \
+	error "Failed to copy .zshrc to new root"
+    cp -v $STATICDIR/files/.tortoise_aliases /mnt/etc/skel/ || \
+	error "Failed to copy .tortoise_aliases to new root"
+    cp -v $STATICDIR/files/picom.conf /mnt/etc/xdg/ || \
+	error "Failed to copy picom.conf to new root"
+    cp -v $STATICDIR/files/os-release /mnt/etc/ || \
+	error "Failed to copy os-release to new root"
     
-    chmod -R u=rwX,g=rX,o= /mnt/etc/skel/ ||  echo "failed to take right permissions" 
+    # DIRECTORIES
+    cp -vr $STATICDIR/files/backgrounds/* /mnt/usr/share/backgrounds || \
+	error "Failed to copy backgrounds to new root"
+    cp -vr $STATICDIR/files/.config /mnt/etc/skel/ || \
+	error "Failed to copy .config to new root"
+    cp -vr $STATICDIR/files/.oh-my-zsh /mnt/etc/skel/ || \
+	error "Failed to copy .oh-my-zsh to new root"
+    
+    chmod -R u=rwX,g=rX,o= /mnt/etc/skel/ ||  echo "Failed to take right permissions" 
 
     print "Copy display-manager config"
-    if [ -f $INSTALLER_DIR/files/lightdm.service ]; then
+    if [ -f $STATICDIR/files/lightdm.service ]; then
 	rm /mnt/usr/lib/systemd/system/lightdm.service 
-	cp -v $INSTALLER_DIR/files/lightdm.service /mnt/usr/lib/systemd/system/ || \
+	cp -v $STATICDIR/files/lightdm.service /mnt/usr/lib/systemd/system/ || \
 	     error "Failed to copy display-manager.service"
 	chmod 644 /mnt/usr/lib/systemd/system/lightdm.service ||  echo "Failed to give permissions" 
 	print "lightdm.service copied successfully."
@@ -335,7 +308,7 @@ install_packages(){
 
     local attempts=5
     for ((i=1; i<=attempts; i++)); do
-        pacstrap -K /mnt $(cat $INSTALLER_DIR/packages/packages) \
+        pacstrap -K /mnt $(cat /home/turtle/packages) \
             --needed --overwrite '*' && return 0
         echo "Attempt $i/$attempts failed. Retrying..."
         sleep 5
@@ -393,6 +366,15 @@ create_user(){
     arch-chroot /mnt /bin/bash -c "useradd $NAME -m"
 }
 
+add_sudo_to_wheel(){
+    arch-chroot /mnt /bin/bash -c "echo '%wheel ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo && visudo -c"
+}
+
+give_root_perms(){
+    NAME="$1"
+    arch-chroot /mnt /bin/bash -c "usermod -aG wheel $NAME && id $NAME" 
+}
+
 set_user_passwd(){
     local NAME="$1"
     local PASSWD="$2"
@@ -410,6 +392,16 @@ make_grub_config(){
 
 update_fc_cache(){
     arch-chroot /mnt /bin/bash -c 'fc-cache -fv'
+}
+
+update_grub_default(){
+    arch-chroot /mnt /bin/bash -c "echo 'GRUB_DISTRIBUTOR=\"Tortoise\"' >> /etc/default/grub"
+}
+
+change_shell(){
+    SHELLPATH="$1"
+    NAME="$2"
+    arch-chroot /mnt /bin/bash -c "usermod --shell $SHELLPATH $NAME"
 }
 
 post_install(){
@@ -450,8 +442,18 @@ post_install(){
     print "Set user password"
     set_user_passwd "$USERNAME" "$USERPASSWD" || error "Failed to create user password" 
 
+    print "Ensuring sudo permissions for wheel group"
+    add_sudo_to_wheel || error "Failed to add sudo perms to wheel"
+
+    print "Adding user to sudoers"
+    give_root_perms "$USERNAME" || error "Failed to add user to sudoers"
+
+    print "Switch to zsh"
+    change_shell "/bin/zsh" "$USERNAME"
+    
     print "Installing bootloader"
     install_x86_64_grub || error "Failed on grub installation"
+    update_grub_default || error "Failed on update defaults"
     make_grub_config || error "Failed to write grub.cfg configuration file" 
 
     print "Installation complete!"

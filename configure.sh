@@ -11,8 +11,13 @@ set -ex
 
 INSTALLFILE="/home/turtle/install.conf"
 
-source /etc/tortoise/tortoise_installer/lib.sh
-source /etc/tortoise/tortoise_installer/logs/progress
+mkdir -p /var/cache/tortoise
+mkdir -p /var/log/tortoise
+echo "" >> /var/cache/tortoise/progress
+
+
+source /usr/lib/tortoise/lib.sh
+source /var/cache/tortoise/progress
 
 HELP="
 $(basename $0) {OPTION}
@@ -47,7 +52,7 @@ case $1 in
             exit 1
 	fi
 
-	if ! make; then
+	if ! make install; then
             echo "Erro: Falha ao executar make." >&2
             exit 1
 	fi
@@ -56,7 +61,7 @@ case $1 in
 	;;
     f | -f | file | --file)
 	INSTALLFILE="$2"
-	write_env_var "INSTALLFILE" "$INSTALLFILE" "/etc/tortoise/tortoise_installer/env"
+	write_env_var "INSTALLFILE=$INSTALLFILE" "/etc/tortoise/egginstall.conf"
 	;;
 
     d | -d | dotfiles | --dotfiles)
@@ -68,17 +73,17 @@ source_or_create "$INSTALLFILE"
 
 [[ $PARTITIONS == true ]] || (make_partitions && write_progress "PARTITIONS=true")
 
-[[ -v EFI ]] || (get_efi && write_env_var "EFI" "$EFI" "$INSTALLFILE")
-[[ -v SWAP ]] || (get_swap && write_env_var "SWAP" "$SWAP" "$INSTALLFILE")
-[[ -v ROOT ]] || (get_root && write_env_var "ROOT" "$ROOT" "$INSTALLFILE")
-[[ -v USERHOME ]] || write_env_var "USERHOME" "$USERHOME" "$INSTALLFILE"
-[[ -v KEYBOARD ]] || (get_keymaps && write_env_var "KEYBOARD" "$KEYBOARD" "$INSTALLFILE")
-[[ -v ENCODING ]] || (get_language && write_env_var "ENCODING" "$ENCODING" "$INSTALLFILE")
-[[ -v ZONEINFO ]] || (get_zoneinfo && write_env_var "ZONEINFO" "$ZONEINFO" "$INSTALLFILE")
-[[ -v USERHOSTNAME ]] || (get_hostname && write_env_var "USERHOSTNAME" "$USERHOSTNAME" "$INSTALLFILE")
-[[ -v ROOTPASSWD ]] || (get_rootpasswd && write_env_var "ROOTPASSWD" "$ROOTPASSWD" "$INSTALLFILE")
-[[ -v USERNAME ]] || (get_username && write_env_var "USERNAME" "$USERNAME" "$INSTALLFILE")
-[[ -v USERPASSWD ]] || (get_userpasswd && write_env_var "USERPASSWD" "$USERPASSWD" "$INSTALLFILE")
+[[ -v EFI ]] || (get_efi && write_env_var "EFI=$EFI" "$INSTALLFILE")
+[[ -v SWAP ]] || (get_swap && write_env_var "SWAP=$SWAP" "$INSTALLFILE")
+[[ -v ROOT ]] || (get_root && write_env_var "ROOT=$ROOT" "$INSTALLFILE")
+[[ -v USERHOME ]] || write_env_var "USERHOME=$USERHOME" "$INSTALLFILE"
+[[ -v KEYBOARD ]] || (get_keymaps && write_env_var "KEYBOARD=$KEYBOARD" "$INSTALLFILE")
+[[ -v ENCODING ]] || (get_language && write_env_var "ENCODING=$ENCODING" "$INSTALLFILE")
+[[ -v ZONEINFO ]] || (get_zoneinfo && write_env_var "ZONEINFO=$ZONEINFO" "$INSTALLFILE")
+[[ -v USERHOSTNAME ]] || (get_hostname && write_env_var "USERHOSTNAME=$USERHOSTNAME" "$INSTALLFILE")
+[[ -v ROOTPASSWD ]] || (get_rootpasswd && write_env_var "ROOTPASSWD=$ROOTPASSWD" "$INSTALLFILE")
+[[ -v USERNAME ]] || (get_username && write_env_var "USERNAME=$USERNAME" "$INSTALLFILE")
+[[ -v USERPASSWD ]] || (get_userpasswd && write_env_var "USERPASSWD=$USERPASSWD" "$INSTALLFILE")
 
 get_packages
 
@@ -89,6 +94,6 @@ source "$INSTALLFILE"
     echo "$DEVTOOLS" | tr ' ' '\n'
     echo "$INTERNET" | tr ' ' '\n'
     echo "$LANGUAGES" | tr ' ' '\n'
-    cat /etc/tortoise/tortoise_installer/packages/essential-packages && echo ""
-    cat /etc/tortoise/tortoise_installer/packages/i3wm-edition-essential-packages
-} > /etc/tortoise/tortoise_installer/packages/packages
+    cat /etc/tortoise/packages/essential-packages && echo ""
+    cat /etc/tortoise/packages/i3wm-edition-essential-packages
+} > /home/turtle/packages

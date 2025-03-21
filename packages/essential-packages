@@ -10,3 +10,10 @@ wget
 dialog
 reflector
 os-prober
+base-devel
+shellcheck
+micro
+fastfetch
+feh
+picom
+zsh
