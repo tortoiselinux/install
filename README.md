@@ -19,7 +19,7 @@ done even before obtaining an ISO of the system. This ready-made
 file can then be inserted into the ISO by modifying the profile, 
 generating a new ISO by the user or simply using a USB stick.
 
-The installation process
+## The installation process
 
 To start the configuration, simply type with sudo permissions:
 
@@ -41,3 +41,22 @@ egginstall
 
 After that, if no errors are displayed, you will be asked if 
 you want to restart and the installation will be complete.
+
+
+## deploying on a archiso profile
+
+The installer implements the FHS, so all files related to the 
+installer must be in the respective locations specified by the 
+standard. To do this easily, there is already a section in the 
+`Makefile` that automates this task.
+
+First, copy the installer into the directory where your profile 
+is located, following the same directory pattern used in `mkiso.sh`
+
+Now run:
+
+make prepare
+
+WARNING: always check if everything was generated correctly, no 
+one deserves to have to generate an ISO over and over again 
+(personal experience).
