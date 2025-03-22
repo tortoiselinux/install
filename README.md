@@ -23,11 +23,11 @@ generating a new ISO by the user or simply using a USB stick.
 
 To start the configuration, simply type with sudo permissions:
 
-configure
+	configure
 
 If you already have a file ready, simply use the <file> flag
 
-configure -f ./<path/to/configuration/file>
+	configure -f ./<path/to/configuration/file>
 
 If you do not provide a configuration file, the installer will 
 ask questions about the aspects of the desired system and will 
@@ -37,7 +37,7 @@ After that, simply run the installer and all the work will be done.
 
 Also with sudo permissions, run:
 
-egginstall
+	egginstall
 
 After that, if no errors are displayed, you will be asked if 
 you want to restart and the installation will be complete.
@@ -55,7 +55,7 @@ is located, following the same directory pattern used in `mkiso.sh`
 
 Now run:
 
-make prepare
+	make prepare
 
 WARNING: always check if everything was generated correctly, no 
 one deserves to have to generate an ISO over and over again 
