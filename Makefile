@@ -11,7 +11,7 @@ LIBDIR= /usr/lib/tortoise
 CONFIGDIR= /etc/tortoise
 STATICDIR= /usr/share/tortoise
 
-prepare:
+bootstrap:
 	@echo "Verificando e limpando arquivos antigos..."
 	@[ -e $(ROOTFS)/$(SCRIPTDIR)/egginstall ] && rm -f $(ROOTFS)/$(SCRIPTDIR)/egginstall || true
 	@[ -e $(ROOTFS)/$(SCRIPTDIR)/configure ] && rm -f $(ROOTFS)/$(SCRIPTDIR)/configure || true
@@ -83,4 +83,4 @@ uninstall:
 clean:
 	@echo "Nothing to clear."
 
-.PHONY: prepare install uninstall clean
+.PHONY: bootstrap install uninstall clean
