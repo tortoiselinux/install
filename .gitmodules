@@ -1,0 +1,6 @@
+[submodule "include/tlib"]
+	path = include/tlib
+	url = https://github.com/tortoiselinux/tlib.git
+[submodule "include/lua-dialog"]
+	path = include/lua-dialog
+	url = https://github.com/tortoiselinux/lua-dialog.git
