@@ -1,8 +1,8 @@
-ROOTFS=../profile/airootfs
+ROOTFS=../profile/airootfs
 
 SCRIPTS = configure.sh install.sh
 LIB = lib.sh
-CONFIGS = egginstall.conf welly.conf
+CONFIGS = egginstall.conf
 STATICFILES = files 
 PACKAGECONFIGDIR= packages
 
@@ -75,7 +75,6 @@ uninstall:
 	@echo "Removing installation..."
 	rm -f $(SCRIPTDIR)/egginstall $(SCRIPTDIR)/configure
 	rm -f $(LIBDIR)/lib.sh
-	rm -f $(CONFIGDIR)/egginstall.conf $(CONFIGDIR)/welly.conf
 	rm -rf $(CONFIGDIR)/$(PACKAGECONFIGDIR)
 	rm -rf $(STATICDIR)/$(STATICFILES)
 	@echo "Removal completed!"
