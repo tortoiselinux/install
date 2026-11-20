@@ -7,12 +7,9 @@
 -- ========================{ END }========================|
 
 -- import tlib
-package.path = package.path .. string.format(";./%s/?.lua", "include/tlib")
 
--- I'm proud about how this lib makes my work simplier  
-local tlib = require("tlib")
-
-local d = tlib.import("include/lua-dialog/dialog")
+local tlib = require("vendor.tlib")
+local d    = require("vendor.dialog")
 
 local installfile
 local cache = "/var/cache/tortoise"
