@@ -8,8 +8,16 @@
 
 -- import tlib
 
-local tlib = require("vendor.tlib")
-local d    = require("vendor.dialog")
+local tlib   = require("vendor.tlib")
+local d      = require("vendor.dialog")
+
+local config = {}
+local f,err = loadfile("config.lua", "t", config)
+if f then
+  f()
+else
+  print(err)
+end
 
 local installfile
 local cache = "/var/cache/tortoise"
