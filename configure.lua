@@ -37,17 +37,17 @@ options:
 end
 
 function TODO()
-   print("THIS FEATURE IS NOT IMPLEMENTED YET")
+  print("THIS FEATURE IS NOT IMPLEMENTED YET")
 end
 
 local function update()
-   TODO()
+  TODO()
 end
 local function file()
-   TODO()
+  TODO()
 end
 local function dotfiles()
-   TODO()
+  TODO()
 end
 
 -- code stolen from lua-dialog/examples.lua
@@ -73,33 +73,33 @@ end
 
 if #arg == 0 then
 
-   print(ui.color(ui.blue, "lets start configuration"))
-   config.efi        =   get("efi: ", config.efi)
-   config.swap       =   get("swap: ", config.swap)
-   config.root       =   get("root: ", config.root)
-   config.keyboard   =   get("keyboard: ", config.keyboard)
-   config.encoding   =   get("encoding: ", config.encoding)
-   config.zoneinfo   =   get("zoneinfo: ", config.zoneinfo)
-   config.hostname   =   get("hostname: ", config.hostname)
-   config.rootpasswd =   get("root password: ", config.rootpasswd)
-   config.username   =   get("username: ", config.username)
-   config.userpasswd =   get("user password: ", config.userpasswd)
+  print(ui.color(ui.blue, "lets start configuration"))
+  config.efi        =   get("efi: ", config.efi)
+  config.swap       =   get("swap: ", config.swap)
+  config.root       =   get("root: ", config.root)
+  config.keyboard   =   get("keyboard: ", config.keyboard)
+  config.encoding   =   get("encoding: ", config.encoding)
+  config.zoneinfo   =   get("zoneinfo: ", config.zoneinfo)
+  config.hostname   =   get("hostname: ", config.hostname)
+  config.rootpasswd =   get("root password: ", config.rootpasswd)
+  config.username   =   get("username: ", config.username)
+  config.userpasswd =   get("user password: ", config.userpasswd)
 
-   -- TODO: need to ensure that the information will be written in order
-   for k,v in pairs(config) do
-      local info = k .. "=\"" .. v .. "\""
-      tlib.write_file("config.lua", "a", info .. "\n")
-   end
+  -- TODO: need to ensure that the information will be written in order
+  for k,v in pairs(config) do
+    local info = k .. "=\"" .. v .. "\""
+    tlib.write_file("config.lua", "a", info .. "\n")
+  end
 
-   -- TODO: Make this don't ask for information already in configuration file, like sh version
+  -- TODO: Make this don't ask for information already in configuration file, like sh version
 else
-   for i in ipairs(arg) do
-      -- new arg template
-      -- tlib.check_args(arg[i], {'', '-', '', '--'}, func)
+  for i in ipairs(arg) do
+    -- new arg template
+    -- tlib.check_args(arg[i], {'', '-', '', '--'}, func)
 
-      tlib.check_args(arg[i], {'h', '-h', 'help', '--help'}, help)
-      tlib.check_args(arg[i], {'u', '-u', 'update', '--update'}, update)
-      tlib.check_args(arg[i], {'f', '-f', 'file', '--file'}, file)
-      tlib.check_args(arg[i], {'d', '-d', 'dotfiles', '--dotfiles'}, dotfiles)
-   end
+    tlib.check_args(arg[i], {'h', '-h', 'help', '--help'}, help)
+    tlib.check_args(arg[i], {'u', '-u', 'update', '--update'}, update)
+    tlib.check_args(arg[i], {'f', '-f', 'file', '--file'}, file)
+    tlib.check_args(arg[i], {'d', '-d', 'dotfiles', '--dotfiles'}, dotfiles)
+  end
 end
