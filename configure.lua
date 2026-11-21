@@ -71,8 +71,14 @@ function get(msg, key)
   return nil
 end
 
-if #arg == 0 then
+function write_config_file()
+  for k,v in pairs(config) do
+    local info = k .. "=\"" .. v .. "\""
+    tlib.write_file("config.lua", "a", info .. "\n")
+  end
+end
 
+function main()
   print(ui.color(ui.blue, "lets start configuration"))
   config.efi        =   get("efi: ", config.efi)
   config.swap       =   get("swap: ", config.swap)
@@ -86,12 +92,23 @@ if #arg == 0 then
   config.userpasswd =   get("user password: ", config.userpasswd)
 
   -- TODO: need to ensure that the information will be written in order
-  for k,v in pairs(config) do
-    local info = k .. "=\"" .. v .. "\""
-    tlib.write_file("config.lua", "a", info .. "\n")
-  end
+  write_config_file()
 
   -- TODO: Make this don't ask for information already in configuration file, like sh version
+end
+
+if #arg == 0 then
+
+  local ok, err = pcall(main)
+  if not ok then
+    if tostring(err):find("interrupted!") then
+      print("\nCaught Ctrl+C! Cleaning up...")
+      write_config_file()
+    else
+      error(err)
+    end
+  end
+
 else
   for i in ipairs(arg) do
     -- new arg template
