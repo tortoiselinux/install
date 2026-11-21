@@ -52,48 +52,46 @@ end
 
 -- code stolen from lua-dialog/examples.lua
 
-function inputbox(txt, h, w)
-   h = h or 0
-   w = w or 0
-   return d.inputbox(txt, h, w)
-end
-
-function passwordbox(txt, h, w)
-   h = h or 0
-   w = w or 0
-   return d.passwordbox(txt, h, w)
-end
 
 -- I can rename inputbox to input too and everything will work fine too
 local function input(msg)
-   result, success, exit_code = inputbox(msg)
-   return result
+  io.write(msg)
+  result = io.read()
+  return result
 end
 
 -- install information
 
 local installinfo = {}
 
+function get(msg, key)
+  if key ~= nil then
+    print("Found " .. msg .. key)
+  else
+    local value = input(msg)
+    return value
+  end
+  return nil
+end
+
 if #arg == 0 then
 
-   -- I As you can see, things in lua are so absolutely simple
-   -- that I didn't even need to change some parts of the code to make everything work.
    print("lets start configuration")
-   installinfo.EFI        =   input("EFI: ")
-   installinfo.SWAP       =   input("SWAP: ")
-   installinfo.ROOT       =   input("ROOT: ")
-   installinfo.KEYBOARD   =   input("SET KEYBOARD: ")
-   installinfo.ENCODING   =   input("SET ENCODING: ")
-   installinfo.ZONEINFO   =   input("SET ZONEINFO: ")
-   installinfo.HOSTNAME   =   input("SET HOSTNAME: ")
-   installinfo.ROOTPASSWD =   passwordbox("SET ROOT PASSWORD: ")
-   installinfo.USERNAME   =   input("SET USERNAME: ")
-   installinfo.USERPASSWD =   passwordbox("SET USER PASSWORD: ")
+   config.efi        =   get("efi: ", config.efi)
+   config.swap       =   get("swap: ", config.swap)
+   config.root       =   get("root: ", config.root)
+   config.keyboard   =   get("keyboard: ", config.keyboard)
+   config.encoding   =   get("encoding: ", config.encoding)
+   config.zoneinfo   =   get("zoneinfo: ", config.zoneinfo)
+   config.hostname   =   get("hostname: ", config.hostname)
+   config.rootpasswd =   get("root password: ", config.rootpasswd)
+   config.username   =   get("username: ", config.username)
+   config.userpasswd =   get("user password: ", config.userpasswd)
 
    -- TODO: need to ensure that the information will be written in order
-   for k,v in pairs(installinfo) do
+   for k,v in pairs(config) do
       local info = k .. "=\"" .. v .. "\""
-      tlib.write_file("install-lua-test.conf", "a", info .. "\n")
+      tlib.write_file("config.lua", "a", info .. "\n")
    end
 
    -- TODO: Make this don't ask for information already in configuration file, like sh version
