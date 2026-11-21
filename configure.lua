@@ -9,14 +9,14 @@
 -- import tlib
 
 local tlib   = require("vendor.tlib")
-local d      = require("vendor.dialog")
+local ui     = require("ui")
 
 local config = {}
 local f,err = loadfile("config.lua", "t", config)
 if f then
   f()
 else
-  print(err)
+  print(ui.color(ui.red, err))
 end
 
 local installfile
@@ -52,7 +52,6 @@ end
 
 -- code stolen from lua-dialog/examples.lua
 
-
 -- I can rename inputbox to input too and everything will work fine too
 local function input(msg)
   io.write(msg)
@@ -62,11 +61,9 @@ end
 
 -- install information
 
-local installinfo = {}
-
 function get(msg, key)
   if key ~= nil then
-    print("Found " .. msg .. key)
+    print(ui.color(ui.red, ("Found " .. msg .. key)))
   else
     local value = input(msg)
     return value
@@ -76,7 +73,7 @@ end
 
 if #arg == 0 then
 
-   print("lets start configuration")
+   print(ui.color(ui.blue, "lets start configuration"))
    config.efi        =   get("efi: ", config.efi)
    config.swap       =   get("swap: ", config.swap)
    config.root       =   get("root: ", config.root)
